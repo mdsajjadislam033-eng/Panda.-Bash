@@ -336,8 +336,13 @@ class AudioManager {
 
   private async checkBackendAvailable(): Promise<boolean> {
     if (this.backendAvailable !== null) return this.backendAvailable;
+    if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+      this.backendAvailable = false;
+      return false;
+    }
+    const baseUrl = import.meta.env.BASE_URL || '/';
     try {
-      const res = await fetch('/api/health', { method: 'GET' });
+      const res = await fetch(`${baseUrl}api/health`, { method: 'GET' });
       const ct = res.headers.get('content-type') || '';
       if (res.ok && ct.includes('application/json')) {
         const data = (await res.json()) as { ok?: boolean };
@@ -364,16 +369,17 @@ class AudioManager {
       if (!ctx) return null;
 
       // Resolve static pre-baked MP3 asset first so static free hosts work with 0 server/API calls
+      const baseUrl = import.meta.env.BASE_URL || '/';
       const mappedStaticId = BUNDLED_BN_IDS.has(lineId)
         ? lineId
         : STATIC_FALLBACK_ID[lineId] || null;
       const staticUrl =
         lang === 'bn' && BUNDLED_BN_IDS.has(lineId)
-          ? `/assets/audio/voices/bn/${lineId}.mp3`
+          ? `${baseUrl}assets/audio/voices/bn/${lineId}.mp3`
           : mappedStaticId
-          ? `/assets/audio/voices/bn/${mappedStaticId}.mp3`
+          ? `${baseUrl}assets/audio/voices/bn/${mappedStaticId}.mp3`
           : null;
-      const apiUrl = `/api/voice/${lang}/${lineId}`;
+      const apiUrl = `${baseUrl}api/voice/${lang}/${lineId}`;
 
       try {
         let arrayBuf: ArrayBuffer | null = null;

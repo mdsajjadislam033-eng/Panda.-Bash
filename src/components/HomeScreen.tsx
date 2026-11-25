@@ -145,7 +145,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="relative w-44 h-44 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-emerald-100 animate-float-slow mb-4">
           {!imgError ? (
             <img
-              src="/assets/aistudio/20261124_024222_85e4caba.jpg"
+              src={`${import.meta.env.BASE_URL}assets/aistudio/20261124_024222_85e4caba.jpg`}
               alt="Panda Bash Hero Panda with Green Scarf"
               referrerPolicy="no-referrer"
               onError={() => setImgError(true)}
