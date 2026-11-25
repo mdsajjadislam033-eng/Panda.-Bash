@@ -2,12 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { GoogleGenAI } from '@google/genai';
 import { getVoiceScript, VOICE_LINES_MAP, type VoiceLineDef } from './src/data/voiceLines.ts';
 
 const PORT = Number(process.env.PORT) || 3000;
-const CACHE_DIR = path.resolve(process.cwd(), '.voice-cache');
+const CACHE_DIR = path.join(os.tmpdir(), 'panda-bash-voice-cache');
 
 const memoryCache = new Map<string, Buffer>();
 const inFlight = new Map<string, Promise<Buffer>>();
@@ -198,7 +199,12 @@ async function startServer(): Promise<void> {
 
   const httpServer = http.createServer(app);
 
-  if (process.env.NODE_ENV !== 'production') {
+  const distDir = path.resolve(process.cwd(), 'dist');
+  const isProd =
+    process.env.NODE_ENV === 'production' ||
+    (process.env.npm_lifecycle_event === 'start' && fs.existsSync(path.join(distDir, 'index.html')));
+
+  if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: {
@@ -211,7 +217,6 @@ async function startServer(): Promise<void> {
     });
     app.use(vite.middlewares);
   } else {
-    const distDir = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distDir));
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distDir, 'index.html'));

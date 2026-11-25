@@ -1,4 +1,4 @@
-import { Language } from '../types/game';
+export type VoiceLang = 'bn' | 'en';
 
 export type VoiceSpeaker = 'panda' | 'monkey';
 export type VoiceCategory =
@@ -245,7 +245,7 @@ export function getLinesFor(speaker: VoiceSpeaker, category: VoiceCategory): Voi
   return VOICE_LINES.filter((l) => l.speaker === speaker && l.category === category);
 }
 
-export function getVoiceScript(line: VoiceLineDef, lang: Language): { text: string; style: string } {
+export function getVoiceScript(line: VoiceLineDef, lang: VoiceLang): { text: string; style: string } {
   return lang === 'bn'
     ? { text: line.spokenBn, style: line.styleBn }
     : { text: line.spokenEn, style: line.styleEn };
